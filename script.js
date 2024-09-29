@@ -83,17 +83,37 @@ const currencies = new Map([
   ["GBP", "Pound sterling"],
 ]);
 
-function displayMovements(movements, sort = false) {
+function formatMovementDate(date) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+
+  if (daysPassed === 0) return "Today";
+  if (daysPassed === 1) return "Yesterday";
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+}
+
+function displayMovements(acc, sort = false) {
   containerMovements.innerHTML = "";
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements;
 
   movs.forEach((mov, i) => {
     const type = mov > 0 ? "deposit" : "withdrawal";
 
+    const date = new Date(acc.movementsDates[i]);
+    const displayDate = formatMovementDate(date);
     const html = `
      <div class="movements__row">
           <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+          <div class="movements__date">${displayDate}</div>
           <div class="movements__value">${mov.toFixed(2)}€</div>
       </div>
     `;
@@ -139,7 +159,7 @@ createUserNames(accounts);
 
 function updateUi(acc) {
   // DISPLAY MOVMENTS
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   //DISPLAY BALANCE
   calcDisplayBalance(acc);
@@ -151,6 +171,18 @@ function updateUi(acc) {
 //EVENT HANDLERS
 //NOTE PREVENT FORM FROM SUBMITTING
 let currentAccount;
+//FAKE ALWAYS LOGGGED IN
+currentAccount = account1;
+updateUi(currentAccount);
+containerApp.style.opacity = 100;
+
+const now = new Date();
+const day = `${now.getDate()}`.padStart(2, 0);
+const month = `${now.getMonth() + 1}`.padStart(2, 0);
+const year = now.getFullYear();
+const hour = `${now.getHours()}`.padStart(2, 0);
+const minutes = `${now.getMinutes()}`.padStart(2, 0);
+labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`;
 
 btnLogin.addEventListener("click", function (e) {
   e.preventDefault();
@@ -191,6 +223,8 @@ btnTransfer.addEventListener("click", (e) => {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(-amount);
 
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
     updateUi(currentAccount);
   }
 });
@@ -204,6 +238,7 @@ btnLoan.addEventListener("click", (e) => {
     //ADD MOVEMENT
     currentAccount.movements.push(amount);
 
+    currentAccount.movementsDates.push(new Date().getDate.toISOString());
     updateUi(currentAccount);
   }
   inputLoanAmount.value = "";
@@ -228,7 +263,7 @@ btnClose.addEventListener("click", (e) => {
 let sorted = false;
 btnSort.addEventListener("click", (e) => {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(e.movements, !sorted);
   sorted = !sorted;
 });
 
@@ -441,6 +476,64 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 // console.log((2.7).toFixed(2));
 // console.log((2.7).toFixed(3));
 // console.log((2.7323).toFixed(3));
+
+//SECTION remainder operator
+// console.log(5 % 2);
+// console.log(5 / 2);
+
+// labelBalance.addEventListener("click", function () {
+//   [...document.querySelectorAll(".movements__row")].forEach(function (row, i) {
+//     if (i % 2 === 0) row.style.backgroundColor = "orangered";
+//     if (i % 2 === 1) row.style.backgroundColor = "blue";
+//   });
+// });
+
+// //SECTION NUMERIC SEPERATOR
+
+// const diamater = 287_460_000_000;
+// const priceCents = 345_99;
+// const transferFee = 15_00;
+
+// //SECTION BIGINT
+// console.log(34234234238742384823n);
+
+// console.log(34234234238742384823n + 3129831283n);
+
+// const huge = 382932983982938n;
+// const num = 23;
+// console.log(huge * BigInt(num));
+// console.log(20n > 15);
+// console.log(20n === 15);
+
+//SECTION CREATING DATES
+// const now = new Date();
+// console.log(now);
+
+// console.log(new Date("Aug 02 2020 18:45:01"));
+
+// console.log(new Date(0));
+// console.log(new Date(3 * 24 * 60 * 60 * 1000));
+
+// const future = new Date(2037, 10, 19, 15, 23);
+// console.log(future);
+// console.log(future.getFullYear());
+// console.log(future.getMonth());
+// console.log(future.getDate());
+// console.log(future.getDay());
+// console.log(future.getHours());
+// console.log(future.toISOString());
+// console.log(future.getTime());
+
+// console.log(Date.now());
+
+//SECTIONS OPERATIONS WITH DATES
+
+// const future = new Date(2037, 10, 19, 15, 23);
+
+// const calcDaysPassed = (date1, date2) => Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
+
+// const days1 = calcDaysPassed(new Date(2073, 3, 4), new Date(2073, 3, 14));
+// console.log(days1);
 // // //CHALLANGE ARRAYS
 
 // const dogsJulia = [3, 5, 2, 12, 7];
