@@ -101,6 +101,13 @@ function formatMovementDate(date, locale) {
   return new Intl.DateTimeFormat(locale).format(date);
 }
 
+function formatCur(value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+  }).format(value);
+}
+
 function displayMovements(acc, sort = false) {
   containerMovements.innerHTML = "";
 
@@ -111,11 +118,14 @@ function displayMovements(acc, sort = false) {
 
     const date = new Date(acc.movementsDates[i]);
     const displayDate = formatMovementDate(date, acc.locale);
+
+    const formattedMov = formatCur(mov, acc.locale, acc.currency);
+
     const html = `
      <div class="movements__row">
           <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
           <div class="movements__date">${displayDate}</div>
-          <div class="movements__value">${mov.toFixed(2)}€</div>
+          <div class="movements__value">${formattedMov}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML("afterbegin", html);
@@ -126,8 +136,7 @@ const calcDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce(function (acc, mov, i) {
     return acc + mov;
   });
-
-  labelBalance.textContent = `${acc.balance.toFixed(2)} EUR`;
+  labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 };
 
 function calcDisplaySummary(acc) {
@@ -140,9 +149,9 @@ function calcDisplaySummary(acc) {
       return int >= 1;
     })
     .reduce((acc, int) => acc + int);
-  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
-  labelSumOut.textContent = `${out.toFixed(2)}€`;
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumIn.textContent = formatCur(incomes, acc.locale, acc.currency);
+  labelSumOut.textContent = formatCur(Math.abs(out), acc.locale, acc.currency);
+  labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency);
 }
 
 const createUserNames = function (accs) {
@@ -670,3 +679,14 @@ GOOD LUCK 😀
 // // Create an array containing the dogs that are eating an OKAY amount of food (try to reuse the condition used in 6.)
 
 // console.log(dogs.filter(okay));
+
+// const num = 3884764.23;
+
+// const options = {
+//   style: "unit",
+//   unit: "mile-per-hour",
+// };
+
+// console.log("US", new Intl.NumberFormat("en-US").format(num));
+// console.log("GE", new Intl.NumberFormat("de-DE").format(num));
+// console.log("PL", new Intl.NumberFormat("pl-PL").format(num));
